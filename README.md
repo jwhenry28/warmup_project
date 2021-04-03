@@ -7,7 +7,7 @@ This node will cause the robot to drive forward for five seconds and then make a
 ### Code Explanation
 * `DriveSquare`: This object is essentially a ROS node that causes the robot to drive in a square.
     * `__init__()`: constructor for a `DriveSquare`. In addition to creating the object, this function initializes the ROS node, a `Twist` message for the node to use, and the `Twist` publisher. 
-    * `run()`: This starts the robot's movement. The function contains a loop which will cause it to move forward for five seconds and then turn 90 degrees to the left. This loops indefinitely, so the robot will continue to drive in a square-like fashion. 
+    * `run()`: This starts the robot's movement. The function contains a loop which will cause it to move forward for five seconds and then turn 90 degrees to the left. This loops indefinitely, so the robot will continue to drive in a square-like fashion. This will also print out the time to the console every time the robot starts moving or turning.
 
 ![Drive Square](/drive_square.gif)
 

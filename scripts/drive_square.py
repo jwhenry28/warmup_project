@@ -4,23 +4,18 @@ import rospy
 import time
 from geometry_msgs.msg import Twist
 
-"""
-STATUS
-
-Robot drives in a squareish pattern; the noise really messes it up though. 
-"""
-
 
 class DriveSquare(object):
     """ This node will drive forward for a specified time, turn 90 degrees, and then repeat effectively moving the robot in a square. """
+    # Constructor/initializer
     def __init__(self):
         rospy.init_node('drive_in_square')
         self.msg = Twist()
         self.publisher = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
         self.turning = False
 
-        # self.msg.linear.x = 0.25
-
+    # "Drives" the robot, causing it to move forward and the turn left, indefinitely.
+    # To learn how to turn a robot 90 degrees, I found the following article useful: http://wiki.ros.org/turtlesim/Tutorials/Rotating%20Left%20and%20Right
     def run(self):
         # Define constants
         pi = 3.1415926535897
@@ -71,61 +66,6 @@ class DriveSquare(object):
             self.msg.angular.z = 0.0
             self.publisher.publish(self.msg)
             r.sleep()
-
-        # base_time = time.time()
-        # forward_duration = 5.0
-        # turn_duration = 2.25
-        # pause_duration1 = 0.5
-        # pause_duration2 = 0.5
-
-        # while not rospy.is_shutdown():
-        #     r = rospy.Rate(10)
-
-        #     now = time.time()
-            
-        #     # After pause, reset timer and resume moving forward
-        #     if (now - base_time) >= (forward_duration + pause_duration1 + turn_duration + pause_duration2) and self.turning:
-        #         print("Beginning forward")
-        #         self.msg.linear.x = 0.1
-        #         self.msg.angular.z = 0.0
-        #         self.turning = False
-
-        #         base_time = time.time()
-            
-        #     # Turn for turn_duration seconds and pause
-        #     elif (now - base_time) >= (forward_duration + pause_duration1 + turn_duration) and self.turning:
-        #         print("Pausing after turn")
-        #         self.msg.linear.x = 0.0
-        #         self.msg.angular.z = 0.0
-
-        #     # Start turn after pause
-        #     elif (now - base_time) >= (forward_duration + pause_duration1) and not self.turning:
-        #         print("Beginning turn")
-        #         self.msg.linear.x = 0.0
-        #         self.msg.angular.z = 0.75
-        #         self.turning = True
-
-        #     # Drive forward forward_duration seconds and pause
-        #     elif (now - base_time) >= (forward_duration) and not self.turning:
-        #         print("Pausing after moving")
-        #         self.msg.linear.x = 0.0
-        #         self.msg.angular.z = 0.0
-
-        #     # Keep turning
-        #     elif self.turning:
-        #         print("turning...")
-        #         self.msg.linear.x = 0.0
-        #         self.msg.angular.z = 0.75
-
-        #     # Keep moving forward
-        #     else:
-        #         print("moving...")
-        #         self.msg.linear.x = 0.1
-        #         self.msg.angular.z = 0.0
-
-        #     self.publisher.publish(self.msg)
-            
-        #     r.sleep()
 
 
 if __name__ == '__main__':
