@@ -21,7 +21,7 @@ This node will cause the robot orient itself towards the nearest object ('person
     * `PersonFollower.follow_person()`: This is the meat of the robot. Here, the code loops through the `ranges` array in the `LaserScan` message and finds the distance and index of the closest object. It then uses these values to orient the robot and move it forward. The index is "rotated" by 180 degrees such that anything in the range of 150 to 210 degrees can be considered "in front" of the robot. If the index is within this range, the robot moves forward at a speed proportional to its distance (faster if further away). Otherwise, the robot moves forward at a constant speed. In either case, the robot adjusts it's angular velocity based on how far the index is from 180. Because of proportional control, the robot will also automatically stop when it is close (0.2m) to the object.
     * `PersonFollower.run()`: This is just a wrapper call to `rospy.spin()` to keep the robot busy.
 
-![Drive Square](/drive_square.gif)
+![Person Follower](/person_follower.gif)
 
 ## Wall Follower
 Still in the works...
