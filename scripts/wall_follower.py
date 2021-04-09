@@ -14,15 +14,25 @@ class WallFollower(object):
         self.msg = Twist()
 
         # Proportional Control
-        self.side_constant = 1.0
+        self.side_constant = 1.5
         self.directional_constant = 0.5
         self.linear_slow = 0.5
-        self.linear_speed = 2.0
+
+
         
     def read_range(self, msg):
+        # Keep moving straight if not close to wall
+        closest = min(msg.ranges)
+        if closest > 0.75:
+            print("Driving to wall")
+            self.msg.linear.x = 0.25
+            self.msg.angular.z = 0.0
+            self.publisher.publish(self.msg)
+            return
+
         # We care about the front, immediate left side, and "angles" on left side
-        front_left_distance = msg.ranges[30]
-        rear_left_distance = msg.ranges[150]
+        front_left_distance = msg.ranges[45]
+        rear_left_distance = msg.ranges[135]
         side_distance = msg.ranges[90]
         front_distance = msg.ranges[0]
 
@@ -32,10 +42,12 @@ class WallFollower(object):
         directional_error = front_left_distance - rear_left_distance
         side_error = side_distance - 0.25
         
-        # Slow down as you approach a wall
-        if front_distance < 0.5:
+
+        # Slow down as you approach a wall and start turning
+        if front_distance < 0.5 or side_distance > front_left_distance or side_distance > rear_left_distance:
             self.msg.linear.x = min(0.25, max(0.05, self.msg.linear.x * self.linear_slow))
-            self.msg.angular.z = -0.35
+            self.msg.angular.z = -0.5
+        # Otherwise keep moving straight
         else:
             self.msg.linear.x = 0.25
             self.msg.angular.z = (self.side_constant * side_error) + (directional_error * self.directional_constant)
