@@ -9,7 +9,7 @@ class WallFollower(object):
     def __init__(self):
         rospy.init_node('wall_follower')
         self.publisher = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
-        self.subcriber = rospy.Subscriber('/scan', LaserScan, self.read_range)
+        self.subcriber = rospy.Subscriber('/scan', LaserScan, self.follow_wall)
 
         self.msg = Twist()
 
@@ -20,7 +20,7 @@ class WallFollower(object):
 
 
         
-    def read_range(self, msg):
+    def follow_wall(self, msg):
         # Keep moving straight if not close to wall
         closest = min(msg.ranges)
         if closest > 0.75:
@@ -47,7 +47,7 @@ class WallFollower(object):
         if front_distance < 0.5 or side_distance > front_left_distance or side_distance > rear_left_distance:
             self.msg.linear.x = min(0.25, max(0.05, self.msg.linear.x * self.linear_slow))
             self.msg.angular.z = -0.5
-        # Otherwise keep moving straight
+        # Otherwise keep moving, adjusting angular velocity to stay by wall.
         else:
             self.msg.linear.x = 0.25
             self.msg.angular.z = (self.side_constant * side_error) + (directional_error * self.directional_constant)

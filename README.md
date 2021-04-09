@@ -5,29 +5,39 @@
 This node will cause the robot to drive forward for five seconds and then make a 90 degree turn. It will keep repeating this, effectively driving in a square path.
 
 ### Code Explanation
-* `DriveSquare`: The pythonic object that is responsible for the **drive_square** behavior.
+* `DriveSquare`: The pythonic class that is responsible for the **drive_square** behavior.
     * `DriveSquare.__init__()`: constructor for a `DriveSquare`. In addition to creating the object, this function initializes the ROS node, a `Twist` message for the node to use, and the `Twist` publisher. 
     * `DriveSquare.run()`: This starts the robot's movement. The function contains a loop which will cause it to move forward for five seconds and then turn 90 degrees to the left. This loops indefinitely, so the robot will continue to drive in a square-like fashion. This will also print out the time to the console every time the robot starts moving or turning.
 
-![Drive Square](/drive_square.gif)
+![Drive Square](/gifs/drive_square.gif)
 
 ## Person Follower
 ### Description 
 This node will cause the robot orient itself towards the nearest object ('person') and move towards it. The object may be moved around and the robot will automatically adjust. It will stop about 0.2m in front of the object.
 
 ### Code Explanation
-* `PersonFollower`: The pythonic object that is responsible for the **person_follower** behavior.
+* `PersonFollower`: The pythonic class that is responsible for the **person_follower** behavior.
     * `PersonFollower.__init__()`: constructor for a `PersonFollower`. In addition to creating the object, this function initializes the ROS node, a `Twist` message for the node to use, the `Twist` publisher, a `LaserScan` subscriber, and several constants necessary for proportional control. 
     * `PersonFollower.follow_person()`: This is the meat of the robot. Here, the code loops through the `ranges` array in the `LaserScan` message and finds the distance and index of the closest object. It then uses these values to orient the robot and move it forward. The index is "rotated" by 180 degrees such that anything in the range of 150 to 210 degrees can be considered "in front" of the robot. If the index is within this range, the robot moves forward at a speed proportional to its distance (faster if further away). Otherwise, the robot moves forward at a constant speed. In either case, the robot adjusts it's angular velocity based on how far the index is from 180. Because of proportional control, the robot will also automatically stop when it is close (0.2m) to the object.
     * `PersonFollower.run()`: This is just a wrapper call to `rospy.spin()` to keep the robot busy.
 
-![Person Follower](/person_follower.gif)
+![Person Follower](/gifs/person_follower.gif)
 
 ## Wall Follower
 ### Description 
 This node will cause the robot to move forwards until it encounters a wall. After this, it will turn itself so that the robot is approximately parallel to the wall and begin "following" the wall. The robot will continue to move so that it is always approximately parallel to the wall, including around corners. 
 
 ### Code Explanation
+* `WallFollower`: The pythonic class that is responsible for the **wall_follower** behavior.
+    * `WallFollower.__init__()`: constructor for a `WallFollower` object. In addition to creating the object, this function initializes the ROS node, a `Twist` message for the node to use, a `Twist` publisher, a `LaserScan` subscriber, and several constants for proportional control.
+    * `WallFollower.follow_wall()`: This function is responsible for the robot's behavior. The function will first check how far the closest wall to the robot is. If it is greater than 0.75m, then the robot is not likely currently following a wall and so the robot should move straight until it finds one. Once it does, the robot constantly adjusts its angular velocity so that the 45 degree sensor is approximately the same distance from the wall as the 135 degree sensor. This will ensure that the robot always remains roughly parallel to the wall. If the robot hits a corner (or the wall, when it is still searching for it), the robot will slow down and turn clockwise until its front sensor no longer detects that there is a wall within 0.75m of it. I also added a `side_error` variable to make sure that there is always a little bit of space (0.25m) between the robot and the wall. This makes rounding corners easier and keeps the robot from bumping into the wall while following.
+    * `WallFollower.run()`: Just a wrapper function for `rospy.spin()`.
+
+The robot will find the wall in front of it and then begin following the perimeter.
+![Wall Follower](/gifs/wall_follower_straight.gif)
+
+It doesn't really matter what the initial angle is; the robot will readjust.
+![Wall Follower Angle](/gifs/wall_follower_angle.gif)
 
 ## Challenges
 For **drive_square**, one of the hardest parts was cleaning up the noise. If the velocity was too great, the noise artificially generated by Gazebo Simulator would throw the robot hopelessly off course. This was overcome by using a slower velocity (and thus a smaller noise). However, it should still be noted that the robot does not drive in a perfect square. After 3-4 iterations, it will no longer be on target. 
